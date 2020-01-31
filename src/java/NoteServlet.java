@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author 787900
  */
 public class NoteServlet extends HttpServlet {
-    
+    private List<String>   temps = new ArrayList<>();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -56,6 +56,9 @@ public class NoteServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         String edit = request.getParameter("edit");
         if(edit!=null) {
+            
+            request.setAttribute("titleD", temps.get(0));
+            request.setAttribute("contentD", temps.get(1));
             getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
         }
         else
@@ -63,16 +66,15 @@ public class NoteServlet extends HttpServlet {
             String path = getServletContext().getRealPath("/WEB-INF/note.txt");
             BufferedReader br = new BufferedReader(new FileReader(new File(path)));
             String line ;
-            List<String>   temps = new ArrayList<String>();
+            
             while((line = br.readLine())!= null)       
         {
             temps.add(line);
             System.out.println(temps.get(0)); 
              }
-            request.setAttribute("title", temps.get(0));
-            for(int i=1;i<temps.size();i++){
-              request.setAttribute("content", temps.get(i));
-             }
+            request.setAttribute("titleS", temps.get(0));
+            request.setAttribute("contentS", temps.get(1));
+             
          
          //   System.out.println("View Mode");
              getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
@@ -107,42 +109,48 @@ public class NoteServlet extends HttpServlet {
          System.out.println("Post Request:");
          String edit = request.getParameter("edit");
          
-         if(edit!=null){
+         
               System.out.println("edit" +edit);
         
          
-         String title = request.getParameter("title");
-         String contents = request.getParameter("contents");
-             
+         String title = request.getParameter("titleA");
+         String contents = request.getParameter("contentA");
+         System.out.println(title);
+         System.out.println(contents);
          String path = getServletContext().getRealPath("/WEB-INF/note.txt");
          PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path, false))); 
-         pw.write(title);
-         pw.write(contents);
-         
-       
-             
-         
+         pw.println(title);
+         pw.println(contents);
+         temps.set(0, title);
+         temps.set(1, contents);
+         request.setAttribute("titleS", title);
+         request.setAttribute("contentS", contents);
+      
+         pw.close();
          System.out.println("title" +title);
          System.out.println("contents:" +contents);
          
          getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
-         pw.close();
-          }
-      //  processRequest(request, response);
-         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet NoteServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet NoteServlet at " + request.getContextPath() + "</h1>");
-            out.println("<h1>[POST]</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
     }
+         //pw.close();
+          
+      //  processRequest(request, response);
+//         try (PrintWriter out = response.getWriter()) {
+//            /* TODO output your page here. You may use following sample code. */
+//            out.println("<!DOCTYPE html>");
+//            out.println("<html>");
+//            out.println("<head>");
+//            out.println("<title>Servlet NoteServlet</title>");            
+//            out.println("</head>");
+//            out.println("<body>");
+//            out.println("<h1>Servlet NoteServlet at " + request.getContextPath() + "</h1>");
+//            out.println("<h1>[POST]</h1>");
+//            out.println("</body>");
+//            out.println("</html>");
+
+
+
+    
 
     /**
      * Returns a short description of the servlet.
