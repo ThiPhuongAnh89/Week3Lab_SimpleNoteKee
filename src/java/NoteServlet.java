@@ -4,8 +4,15 @@
  * and open the template in the editor.
  */
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author 787900
  */
 public class NoteServlet extends HttpServlet {
+    
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -52,7 +60,21 @@ public class NoteServlet extends HttpServlet {
         }
         else
         {
-            System.out.println("View Mode");
+            String path = getServletContext().getRealPath("/WEB-INF/note.txt");
+            BufferedReader br = new BufferedReader(new FileReader(new File(path)));
+            String line ;
+            List<String>   temps = new ArrayList<String>();
+            while((line = br.readLine())!= null)       
+        {
+            temps.add(line);
+            System.out.println(temps.get(0)); 
+             }
+            request.setAttribute("title", temps.get(0));
+            for(int i=1;i<temps.size();i++){
+              request.setAttribute("content", temps.get(i));
+             }
+         
+         //   System.out.println("View Mode");
              getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
         }
       //  processRequest(request, response);
@@ -80,24 +102,32 @@ public class NoteServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
          response.setContentType("text/html;charset=UTF-8");
          System.out.println("Post Request:");
          String edit = request.getParameter("edit");
+         
          if(edit!=null){
               System.out.println("edit" +edit);
-         }
+        
          
          String title = request.getParameter("title");
          String contents = request.getParameter("contents");
+             
+         String path = getServletContext().getRealPath("/WEB-INF/note.txt");
+         PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path, false))); 
+         pw.write(title);
+         pw.write(contents);
+         
+       
+             
          
          System.out.println("title" +title);
          System.out.println("contents:" +contents);
          
          getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
-         
-         
+         pw.close();
+          }
       //  processRequest(request, response);
          try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
